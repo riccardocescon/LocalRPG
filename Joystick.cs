@@ -22,9 +22,13 @@ public class Joystick : MonoBehaviour
     private bool raceSelection = false;
     private bool classSelection = false;
     private string raceChosen;
-    private PlayerData[] player = new PlayerData[4];
+    private PlayerData player;
     private string name;
     private bool play = true;
+    private int rotation = 0;
+    private string playerRace;
+
+    public bool ready = false;
 
 
 
@@ -67,22 +71,8 @@ public class Joystick : MonoBehaviour
                 Joined();
                 downTime = startDownTime;
             }
-
-            if(classSelection){
-                if(Input.GetAxis("LeftStickHorizontal" + JoystickNum) > 0.7f && downTime <= 0){
-                    //Debug.Log("RightMove");
-                    downTime = startDownTime;
-                }else if(Input.GetAxis("LeftStickHorizontal" + JoystickNum) < -0.7f && downTime <= 0){
-                   // Debug.Log("LeftMove");
-                    downTime = startDownTime;
-
-                }else if(Input.GetButtonDown("AButton" + JoystickNum) && downTime <= 0){
-                    //Debug.Log("Pick");
-                    downTime = startDownTime;
-                }else{
-                    downTime -= Time.deltaTime;
-                }
-            }else if(raceSelection){
+            
+            if(raceSelection){
                 if(Input.GetAxis("LeftStickVertical" + JoystickNum) > 0.7f && downTime <= 0 && currentPlayerNum < 2){   // = num Max Race 
                     Down();
                     downTime = startDownTime;
@@ -90,7 +80,8 @@ public class Joystick : MonoBehaviour
                     Up();
                     downTime = startDownTime;
                 }else if(Input.GetButtonDown("AButton" + JoystickNum) && downTime <= 0){
-                    ClassSelectionFunction(slot[currentSlot - 1].GetComponent<Text>().text);
+                    playerRace = slot[currentSlot - 1].GetComponent<Text>().text;
+                    ClassSelectionFunction(playerRace);
                     downTime = startDownTime;
                 }else{
                     downTime -= Time.deltaTime;
@@ -124,6 +115,37 @@ public class Joystick : MonoBehaviour
                 
             }
 
+        }else{  //ClassSelection
+            if(ready){
+
+
+            }else{
+                if(Input.GetAxis("LeftStickHorizontal" + JoystickNum) > 0.7f && downTime <= 0){
+                    rotation++;
+                    ClassManager.instance.MoveClassGraphic('d', JoystickNum - 1, rotation);
+                        //Debug.Log("RightMove");
+                    downTime = startDownTime;
+                }else if(Input.GetAxis("LeftStickHorizontal" + JoystickNum) < -0.7f && downTime <= 0){
+                    rotation--;
+                    ClassManager.instance.MoveClassGraphic('s', JoystickNum - 1, rotation);
+                    // Debug.Log("LeftMove");
+                    downTime = startDownTime;
+
+                }else if(Input.GetButtonDown("AButton" + JoystickNum) && downTime <= 0){
+                    player = new PlayerData(LoadPlayer(playerRace));
+                    ClassManager.instance.ClassSelected(player, JoystickNum, rotation);
+                    SaveSystem.SavePlayer(player);
+                        //Debug.Log("Pick");
+                    downTime = startDownTime;
+                    ready = true;
+                    ClassManager.instance.SetReady(player, JoystickNum - 1, raceChosen);
+            
+                }else{
+                    downTime -= Time.deltaTime/5;
+                    
+                }
+            }
+
         }
 
     }
@@ -131,10 +153,11 @@ public class Joystick : MonoBehaviour
     private void ClassSelectionFunction(string race){
         classSelection = true;
         raceChosen = race;
-        player[JoystickNum - 1] = new PlayerData(LoadPlayer(race));
+        player = new PlayerData(LoadPlayer(race));
         HideEveryPanel();
         play = false;
-        ClassSelection.instance.StartClassSelection(player[JoystickNum - 1], JoystickNum, race);
+        //ClassSelection.instance.StartClassSelection(player[JoystickNum - 1], JoystickNum, race);
+        ClassManager.instance.ShowClasses(player, JoystickNum, race);
     }
 
     private void HideEveryPanel(){
@@ -185,6 +208,7 @@ public class Joystick : MonoBehaviour
 
     private void Joined(){
         joined = true;
+        ClassManager.instance.JoystickLoaded();
         for(int i = 0; i < slot.Length; i++){
             slot[i].SetActive(true);
         }
@@ -218,6 +242,7 @@ public class Joystick : MonoBehaviour
 
     private void Exit(){
         joined = false;
+        ClassManager.instance.JoystickDisconnected();
         for(int i = 0; i < slot.Length; i++){
             slot[i].SetActive(false);
         }

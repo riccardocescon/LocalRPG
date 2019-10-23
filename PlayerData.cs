@@ -47,18 +47,19 @@ public class PlayerData
 
     }
 
+
     public PlayerData(string playerName){
         name = playerName;
-        health = 0;
-        power = 0;
-        speed = 0;
-        speedAttack = 0;
+        health = 100;
+        power = 60;
+        mana = 40;
+        armor = 40;
+        speed = 3;
+        speedAttack = 0.5f;
         xp = 0;
-        mana = 0;
-        armor = 0;
         lastClassUsed = "";
-        lvl = 0;
-        classUnlocked = "Guerriero;Arciere;Mago";
+        lvl = 1;
+        classUnlocked = "Warrior;Ranger;Mage";
     }
 
 }

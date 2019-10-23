@@ -18,11 +18,19 @@ public class Player : MonoBehaviour
         public string lastClassUsed;
         public int lvl;
         public string classUnlocked;
+        public int JoystickNum;
         
     #endregion
 
-    public float startTimeBtwAttack;
-    private float timeBtwAttacks;
+    #region PhysicsVariable
+        public Rigidbody2D rb;
+
+    #endregion
+
+    #region Time_Variable
+        public float startTimeBtwAttack;
+        private float timeBtwAttacks;
+    #endregion
 
 
 
@@ -33,8 +41,24 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody2D>();
+        rb.freezeRotation = true;
+
+        PlayerData pg = SaveSystem.GetPlayer(1);    //1 dovrebbe essere il numero del joystick. Trova il modo per riconoscere che joystick sta usando il giocatore
+        name = pg.name;                             //prova a loaddarli 1 all volta dal primo, e dopo averlo loaddato carichi il giocatore, in questo modo dovrebbe andare
+        health = pg.health;
+        power = pg.power;
+        speed = pg.speed;
+        speedAttack = pg.speedAttack;
+        xp = pg.xp;
+        mana = pg.mana;
+        armor = pg.armor;
+        lastClassUsed = pg.lastClassUsed;
+        lvl = pg.lvl;
+        classUnlocked = pg.classUnlocked;
+
     }
+
 
     // Update is called once per frame
     void Update()
@@ -51,5 +75,9 @@ public class Player : MonoBehaviour
         }else{
             timeBtwAttacks -= Time.deltaTime;
         }
+    }
+
+    private void SetPlayer(){
+        
     }
 }

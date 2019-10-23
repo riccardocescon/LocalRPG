@@ -6,56 +6,41 @@ public class Controller : MonoBehaviour
 {
     public static Controller instance;
 
-    public Rigidbody2D rb;
-    private Animator anim;
-    private int speed = 3;
-    private float moveInput = 0f;
-    private float distToGround;
+
 
 
     private void Awake() {
         if(instance == null) instance = this;
     }
-    // Start is called before the first frame update
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-        rb.freezeRotation = true;
 
-        anim = GetComponent<Animator>();
 
-        distToGround = GetComponent<Collider2D>().bounds.extents.y;
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        //#region JoystickLeftStick
+        #region JoystickLeftStick
             //Jump on ColliderController script
             if(Input.GetAxis("LeftStickHorizontal2") > 0.5f){
-            moveInput =Input.GetAxis("LeftStickHorizontal2");
-            anim.SetBool("MoveRight", true);
+            //PlayerAnimation.instance.SetSomething("LeftStickHorizontal2");
+            //PlayerAnimation.instance.moveInput =Input.GetAxis("LeftStickHorizontal2");
+            //anim.SetBool("MoveRight", true);
             } 
             else if(Input.GetAxis("LeftStickHorizontal2") < -0.5f){
-                moveInput = Input.GetAxis("LeftStickHorizontal2");
-                anim.SetBool("MoveRight", false);
+                //PlayerAnimation.instance.moveInput = Input.GetAxis("LeftStickHorizontal2");
+                //anim.SetBool("MoveRight", false);
             }
             else{
-                moveInput = 0f;
-                anim.SetBool("MoveRight", false);
+                //PlayerAnimation.instance.moveInput = 0f;
+                //anim.SetBool("MoveRight", false);
             }
-        //#endregion
+        #endregion
     
-        //#region JoystickButtons
+        #region JoystickButtons
             if(Input.GetButtonDown("AButton2")){
-                Player.instance.Attack();
+              //  Player.instance.Attack();
             }
-        //#endregion
+        #endregion
     }
 
-    private void FixedUpdate() {
-        rb.velocity = new Vector2(moveInput * speed, rb.velocity.y);
-    }
+
 
 
 }

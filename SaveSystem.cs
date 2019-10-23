@@ -68,5 +68,27 @@ public static class SaveSystem
         File.Delete(Application.persistentDataPath + "/player" + name + ".data");
         UnityEditor.AssetDatabase.Refresh();
     }
+
+    public static PlayerData GetPlayer(int joystickNum){
+        string data = PlayerPrefs.GetString("GetPlayer" + joystickNum);
+        string dataRace = "";
+        string dataName = "";
+        for(int i = 0; i < data.Length; i++){
+            if(data[i].Equals(';')){
+                break;
+            }else{
+                dataRace += data[i];
+            }
+        }
+        for(int i = dataRace.Length + 1; i < data.Length; i++){
+            if(data[i].Equals(';')){
+                break;
+            }else{
+                dataName += data[i];
+            }
+        }
+        return LoadPlayer(dataRace, dataName);
+    }
+
     
 }
