@@ -429,6 +429,11 @@ public class ClassManager : MonoBehaviour
 
     public void AllReady(){
         if(joystickLoaded == playerReady){
+            if(joystickLoaded < 4){
+                for(int i = 4; i > joystickLoaded; i--){
+                     PlayerPrefs.SetString("GetPlayer" + i, "" + ";" + "" + ";" + "");
+                }
+            }
             SceneManagement.instance.LoadScene("Map1");
         }
     }
