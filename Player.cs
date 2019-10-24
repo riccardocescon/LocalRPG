@@ -43,19 +43,40 @@ public class Player : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         rb.freezeRotation = true;
+        
+        PlayerData pg = SaveSystem.GetPlayer(this.gameObject.GetComponent<Controller>().JoystickNum);
+        if(pg != null){
+            name = pg.name;
+            health = pg.health;
+            power = pg.power;
+            speed = pg.speed;
+            speedAttack = pg.speedAttack;
+            xp = pg.xp;
+            mana = pg.mana;
+            armor = pg.armor;
+            lastClassUsed = pg.lastClassUsed;
+            lvl = pg.lvl;
+            classUnlocked = pg.classUnlocked;
+        }else{
+            this.gameObject.SetActive(false);
+        }
 
-        PlayerData pg = SaveSystem.GetPlayer(1);    //1 dovrebbe essere il numero del joystick. Trova il modo per riconoscere che joystick sta usando il giocatore
-        name = pg.name;                             //prova a loaddarli 1 all volta dal primo, e dopo averlo loaddato carichi il giocatore, in questo modo dovrebbe andare
-        health = pg.health;
-        power = pg.power;
-        speed = pg.speed;
-        speedAttack = pg.speedAttack;
-        xp = pg.xp;
-        mana = pg.mana;
-        armor = pg.armor;
-        lastClassUsed = pg.lastClassUsed;
-        lvl = pg.lvl;
-        classUnlocked = pg.classUnlocked;
+        //Load skin
+        switch(lastClassUsed){
+            case "Warrior":
+                GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Humanoid/Warrior/WarriorFront");
+            break;
+
+            case "Ranger":
+                GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Humanoid/Ranger/RangerFront");
+            break;
+
+            case "Mage":
+                GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Humanoid/Warrior/WarriorFront");
+            break;
+
+        }
+        
 
     }
 
