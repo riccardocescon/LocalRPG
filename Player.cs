@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
 {
     public static Player instance;
 
+    public bool instantiated;
+
     #region Player Data
         public string name;
         public float health;
@@ -18,7 +20,8 @@ public class Player : MonoBehaviour
         public string lastClassUsed;
         public int lvl;
         public string classUnlocked;
-        public int JoystickNum;
+
+        public string currentAction;
         
     #endregion
 
@@ -45,7 +48,7 @@ public class Player : MonoBehaviour
         rb.freezeRotation = true;
         
         PlayerData pg = SaveSystem.GetPlayer(this.gameObject.GetComponent<Controller>().JoystickNum);
-        if(pg != null){
+        if(pg != null && this.gameObject.GetComponent<Controller>().JoystickNum != -1){
             name = pg.name;
             health = pg.health;
             power = pg.power;
@@ -57,9 +60,13 @@ public class Player : MonoBehaviour
             lastClassUsed = pg.lastClassUsed;
             lvl = pg.lvl;
             classUnlocked = pg.classUnlocked;
+
+            instantiated = true;
         }else{
             this.gameObject.SetActive(false);
+            instantiated = false;
         }
+
 
         //Load skin
         switch(lastClassUsed){
@@ -84,18 +91,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-    }
 
-    public void Attack(){
-        if(timeBtwAttacks <= 0){
-            Debug.Log("Attack");
-                //Animation
-                //Togli vita al bersagio
-            timeBtwAttacks = startTimeBtwAttack;
-        }else{
-            timeBtwAttacks -= Time.deltaTime;
-        }
     }
 
     private void SetPlayer(){
