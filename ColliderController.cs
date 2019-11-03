@@ -4,11 +4,32 @@ using UnityEngine;
 
 public class ColliderController : MonoBehaviour
 {   
-    private void OnTriggerStay2D(Collider2D other) {
-        if(Input.GetAxis("LeftStickVertical" + GetComponentInParent(typeof(Controller)).GetComponent<Controller>().JoystickNum) < -0.5f){
-           if(other.gameObject.tag == "Ground"){
-                GetComponentInParent(typeof(Player)).GetComponent<Player>().rb.AddForce(new Vector2(0, 3), ForceMode2D.Impulse) ;
-           }
-        } 
+    private GameObject player;
+    private Controller controller;
+
+    public void SetPlayer(GameObject pg, Controller contr){
+        player = pg;
+        controller = contr;
     }
+
+
+    private void OnCollisionStay2D(Collision2D other) { //player on ground
+        if(player != null && controller.JoystickNum != -1){
+            if(Input.GetAxis("LeftStickVertical" + controller.JoystickNum) < -0.5f && !controller.buttonAttackPressed){
+                if(other.gameObject.tag == "Ground"){
+                   controller.player.gameObject.transform.GetChild(1).GetComponent<AnimationHandler>().MoveVertical();
+                }
+            }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other) {    //Player arrived ground
+        if(player != null && controller.JoystickNum != -1){
+            if(other.gameObject.tag == "Ground"){
+                controller.player.gameObject.transform.GetChild(1).GetComponent<AnimationHandler>().OnGround();
+            }
+        }
+    }
+    
+
 }

@@ -5,7 +5,12 @@ using UnityEngine;
 public class Controller : MonoBehaviour
 {
     public static Controller instance;
-    public int JoystickNum;
+
+    public int JoystickNum = -1;
+
+    public bool buttonAttackPressed;
+
+    public GameObject player;
 
 
 
@@ -16,25 +21,52 @@ public class Controller : MonoBehaviour
 
     void Update()
     {
-        #region JoystickLeftStick
+        if(player != null && JoystickNum != -1){
+            #region JoystickLeftStick
+            
+                //Jump on ColliderController script
+
+                if(!buttonAttackPressed){
+                if(Input.GetAxis("LeftStickHorizontal" + JoystickNum) > 0.5f || Input.GetAxis("LeftStickHorizontal" + JoystickNum) < -0.5f){
+                        player.transform.GetChild(1).GetComponent<AnimationHandler>().MoveHorizontal("LeftStickHorizontal" + JoystickNum);
+                    }else{
+                        player.transform.GetChild(1).GetComponent<AnimationHandler>().StopMove();
+                    } 
+                }
+                
+                
+
+            #endregion
         
-            //Jump on ColliderController script
+            #region JoystickButtons
+                if(Input.GetButtonDown("AButton" + JoystickNum) && !buttonAttackPressed){
 
-            if(Input.GetAxis("LeftStickHorizontal" + JoystickNum) > 0.5f || Input.GetAxis("LeftStickHorizontal" + JoystickNum) < -0.5f){
-                GetComponent<PlayerAnimation>().MoveHorizontal("LeftStickHorizontal" + JoystickNum);
-            }else{
-                GetComponent<PlayerAnimation>().StopMove();
-            }
+                    player.transform.GetChild(1).GetComponent<AnimationHandler>().Attack(1);
 
-        #endregion
-    
-        #region JoystickButtons
-            if(Input.GetButtonDown("AButton" + JoystickNum)){
-                GetComponent<PlayerAnimation>().Attack();
-            }
-        #endregion
+                }else if(Input.GetButtonDown("BButton" + JoystickNum))
+                {
+                    player.transform.GetChild(1).GetComponent<AnimationHandler>().Attack(2);
+                    
+
+                    buttonAttackPressed = true;
+                }
+                if(Input.GetButtonUp("BButton" + JoystickNum)){
+                    
+                    player.transform.GetChild(1).GetComponent<AnimationHandler>().ReleaseAttack();
+
+                    buttonAttackPressed = false;
+                }
+
+                
+            #endregion
+        }
     }
 
+    public void SetPlayer(GameObject pg, int jNum){
+        player = pg;
+        pg.transform.GetChild(0).GetChild(2).GetComponent<ColliderController>().SetPlayer(pg, this);
+        JoystickNum = jNum;
+    }
 
 
 
