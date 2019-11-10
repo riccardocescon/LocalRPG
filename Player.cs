@@ -41,14 +41,14 @@ public class Player : MonoBehaviour
         if(instance == null)instance = this;
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
+    public void SetData(){
+            rb = GetComponent<Rigidbody2D>();
         rb.freezeRotation = true;
+
+        Debug.Log(this.gameObject.GetComponent<Movement>().JoystickNum);
         
-        PlayerData pg = SaveSystem.GetPlayer(this.gameObject.GetComponent<Controller>().JoystickNum);
-        if(pg != null && this.gameObject.GetComponent<Controller>().JoystickNum != -1){
+        PlayerData pg = SaveSystem.GetPlayer(this.gameObject.GetComponent<Movement>().JoystickNum);
+        if(pg != null && this.gameObject.GetComponent<Movement>().JoystickNum != -1){
             name = pg.name;
             health = pg.health;
             power = pg.power;

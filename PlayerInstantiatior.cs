@@ -15,9 +15,9 @@ public class PlayerInstantiatior : MonoBehaviour
         JoystickNum = JoystickHolder.instance.GetJoystickNum();
         player = SaveSystem.GetPlayer(JoystickNum);
         if(!(player == null)){       //Se numero joystick è in gioco
-            pg = Instantiate(Resources.Load<GameObject>("Prefabs/Warrior"), JoystickHolder.instance.GetPlayerPosition(JoystickNum), Quaternion.identity);
+            pg = Instantiate(Resources.Load<GameObject>("Prefabs/" + player.lastClassUsed), JoystickHolder.instance.GetPlayerPosition(JoystickNum), Quaternion.identity);
             pg.SetActive(true);
-            GetComponent<Controller>().SetPlayer(pg, JoystickNum);
+            GameObject.Find("/JoystickBuffer").GetComponent<JoystickBuffer>().SetJoystickInfo(JoystickNum, pg);
         }
     }
 

@@ -2,25 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Controller : MonoBehaviour
+public class Movement : MonoBehaviour
 {
-    public static Controller instance;
 
     public int JoystickNum = -1;
 
     public bool buttonAttackPressed;
 
     public GameObject player;
+    public GameObject joystickNumBuffer;
 
 
 
-    private void Awake() {
-        if(instance == null) instance = this;
+
+    private void Start() {
+        joystickNumBuffer = GameObject.Find("/JoystickBuffer");
+        JoystickNum = joystickNumBuffer.GetComponent<JoystickBuffer>().GetJoystickNumber();
+
+        player = joystickNumBuffer.GetComponent<JoystickBuffer>().GetPlayer(JoystickNum);
+        player.transform.GetChild(0).GetChild(2).GetComponent<ColliderController>().SetPlayer(player, JoystickNum);
+        GetComponent<Player>().SetData();
     }
 
 
     void Update()
     {
+
         if(player != null && JoystickNum != -1){
             #region JoystickLeftStick
             
@@ -61,13 +68,4 @@ public class Controller : MonoBehaviour
             #endregion
         }
     }
-
-    public void SetPlayer(GameObject pg, int jNum){
-        player = pg;
-        pg.transform.GetChild(0).GetChild(2).GetComponent<ColliderController>().SetPlayer(pg, this);
-        JoystickNum = jNum;
-    }
-
-
-
 }

@@ -11,6 +11,7 @@ public class Joystick : MonoBehaviour
     public GameObject[] slot;
     public GameObject AddPlayer;
     public GameObject RaceSeleciton;
+    private Vector2 startPosition;
     public int JoystickNum;
     private float startTime = 0.8f;
     private float time;
@@ -54,6 +55,7 @@ public class Joystick : MonoBehaviour
         for(int i = 0; i < slot.Length; i++){
             slot[i].SetActive(false);
         }
+        startPosition = selector.transform.position;
     }
 
     // Update is called once per frame
@@ -73,6 +75,7 @@ public class Joystick : MonoBehaviour
             }
             
             if(raceSelection){
+                Debug.Log("JOYSTICK : " + JoystickNum + " Pos : " + currentPlayerNum);
                 if(Input.GetAxis("LeftStickVertical" + JoystickNum) > 0.7f && downTime <= 0 && currentPlayerNum < 2){   // = num Max Race 
                     Down();
                     downTime = startDownTime;
@@ -178,6 +181,9 @@ public class Joystick : MonoBehaviour
         
         AddPlayer.SetActive(false);
         RaceSeleciton.SetActive(true);
+        currentPlayerNum = 0;
+        selector.transform.position = startPosition;
+        currentSlot = 1;
         raceSelection = true;
         SetRaceSelection();
     }
@@ -266,6 +272,7 @@ public class Joystick : MonoBehaviour
 
     private void Up(){
         if(currentSlot > 1){
+            Debug.Log("ENTRATO");
             selector.transform.position = new Vector2(selector.transform.position.x, selector.transform.position.y + 124.4f);
             currentSlot--;
             currentPlayerNum--;

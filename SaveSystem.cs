@@ -70,6 +70,7 @@ public static class SaveSystem
     }
 
     public static PlayerData GetPlayer(int joystickNum){
+        if(joystickNum == -1) return null;
         string data = PlayerPrefs.GetString("GetPlayer" + joystickNum);
         if(data[0] == ';') return null;
         string dataRace = "";
