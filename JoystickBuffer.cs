@@ -11,6 +11,7 @@ public class JoystickBuffer : MonoBehaviour
     private int conn = -1;
 
 
+
     private GameObject[] player = new GameObject[4];
 
 

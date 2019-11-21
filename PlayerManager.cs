@@ -11,6 +11,7 @@ public class PlayerManager : MonoBehaviour
         if(instance == null)instance = this;
     }
 
+
     public void AddPlayerJoined(string playerName){
         playerChosen.Add(playerName);
     }

@@ -18,12 +18,8 @@ public class PlayerInstantiatior : MonoBehaviour
             pg = Instantiate(Resources.Load<GameObject>("Prefabs/" + player.lastClassUsed), JoystickHolder.instance.GetPlayerPosition(JoystickNum), Quaternion.identity);
             pg.SetActive(true);
             GameObject.Find("/JoystickBuffer").GetComponent<JoystickBuffer>().SetJoystickInfo(JoystickNum, pg);
+            GameObject.Find("/PlayersDataGraphicManager").GetComponent<PlayerDataGraphicManager>().SetDataGraphic(player);
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

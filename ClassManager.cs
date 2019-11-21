@@ -36,6 +36,8 @@ public class ClassManager : MonoBehaviour
     private int joystickLoaded = 0;
     private int playerReady = 0;
 
+    private int[] rot = new int[4];
+
     private void Start() {
         for(int i = 0; i < races.Length; i++){
             foreach(Transform child in races[i].transform){
@@ -49,6 +51,10 @@ public class ClassManager : MonoBehaviour
             readyPanel[i].SetActive(false);
         }
 
+        for(int i = 0; i < 4; i++){
+            rot[i] = -1;
+        }
+
     }
 
 
@@ -56,8 +62,79 @@ public class ClassManager : MonoBehaviour
         if(instance == null)instance = this;
     }
 
+    private void MoveSelected(int JoystickNum, bool right){
+        if(right)
+            rot[JoystickNum]++;
+        else
+        {
+            rot[JoystickNum]--;
+        }
+
+        if(rot[JoystickNum] < 0){
+            switch(JoystickNum){
+                case 0:
+                    rot[JoystickNum] = DisponibileClasses1.Count - Mathf.Abs(rot[JoystickNum]);
+                break;
+                case 1:
+                    rot[JoystickNum] = DisponibileClasses2.Count - Mathf.Abs(rot[JoystickNum]);
+                break;
+                case 2:
+                    rot[JoystickNum] = DisponibileClasses3.Count - Mathf.Abs(rot[JoystickNum]);
+                break;
+                case 3:
+                    rot[JoystickNum] = DisponibileClasses4.Count - Mathf.Abs(rot[JoystickNum]);
+                break;
+            }
+        }
+        int pos;
+        stopAnimation(JoystickNum);
+        switch(JoystickNum){
+            case 0:
+                pos = rot[JoystickNum] % DisponibileClasses1.Count;
+                DisponibileClasses1[pos].GetComponent<Animator>().SetBool("Animate", true);
+            break;
+            case 1:
+                pos = rot[JoystickNum] % DisponibileClasses2.Count;
+                DisponibileClasses2[pos].GetComponent<Animator>().SetBool("Animate", true);
+            break;
+            case 2:
+                pos = rot[JoystickNum] % DisponibileClasses3.Count;
+                DisponibileClasses3[pos].GetComponent<Animator>().SetBool("Animate", true);
+            break;
+            case 3:
+                pos = rot[JoystickNum] % DisponibileClasses4.Count;
+                DisponibileClasses4[pos].GetComponent<Animator>().SetBool("Animate", true);
+            break;
+        }
+    }
+
+    private void stopAnimation(int num){
+        switch(num){
+            case 0:
+                for(int i = 0; i < DisponibileClasses1.Count; i++){
+                    DisponibileClasses1[i].GetComponent<Animator>().SetBool("Animate", false);
+                }  
+            break;
+            case 1:
+                for(int i = 0; i < DisponibileClasses2.Count; i++){
+                    DisponibileClasses2[i].GetComponent<Animator>().SetBool("Animate", false);
+                }  
+            break;
+            case 2:
+                for(int i = 0; i < DisponibileClasses3.Count; i++){
+                    DisponibileClasses3[i].GetComponent<Animator>().SetBool("Animate", false);
+                }  
+            break;
+            case 3:
+                for(int i = 0; i < DisponibileClasses4.Count; i++){
+                    DisponibileClasses4[i].GetComponent<Animator>().SetBool("Animate", false);
+                }  
+            break;
+        }
+    }
+
     public void ShowClasses(PlayerData pg, int joystickNum, string race){
-        int classNum = 0;
+        int classNum = 0;   //?*
         switch(race){
             case "Human":
                 classNum = 0;
@@ -196,6 +273,7 @@ public class ClassManager : MonoBehaviour
                     DisponibileClasses1[i].transform.localPosition = new Vector2(Mathf.Cos(i * rad - Mathf.PI/2) * r + classesCentre1.x, Mathf.Sin(i * rad - Mathf.PI/2) * r + classesCentre1.y);
                     DisponibileClasses1[i].SetActive(true);
                 }
+                MoveSelected(JoystickNum, true);
             break;
 
             case 1:
@@ -203,6 +281,7 @@ public class ClassManager : MonoBehaviour
                     DisponibileClasses2[i].transform.localPosition = new Vector2(Mathf.Cos(i * rad - Mathf.PI/2) * r + classesCentre2.x, Mathf.Sin(i * rad - Mathf.PI/2) * r + classesCentre2.y);
                     DisponibileClasses2[i].SetActive(true);
                 }
+                MoveSelected(JoystickNum, true);
             break;
 
             case 2:
@@ -210,6 +289,7 @@ public class ClassManager : MonoBehaviour
                     DisponibileClasses3[i].transform.localPosition = new Vector2(Mathf.Cos(i * rad - Mathf.PI/2) * r + classesCentre3.x, Mathf.Sin(i * rad - Mathf.PI/2) * r + classesCentre3.y);
                     DisponibileClasses3[i].SetActive(true);
                 }
+                MoveSelected(JoystickNum, true);
             break;
 
             case 3:
@@ -217,11 +297,12 @@ public class ClassManager : MonoBehaviour
                     DisponibileClasses4[i].transform.localPosition = new Vector2(Mathf.Cos(i * rad - Mathf.PI/2) * r + classesCentre4.x, Mathf.Sin(i * rad - Mathf.PI/2) * r + classesCentre4.y);
                     DisponibileClasses4[i].SetActive(true);
                 }
+                MoveSelected(JoystickNum, true);
             break;
         }
     }
 
-    public void MoveClassGraphic(char chose, int JoystickNum, int rotation){
+    public void MoveClassGraphic(char chose, int JoystickNum, int rotation, bool right){
         int nPunti = unlockedClass[JoystickNum].Count;
         float alpha = 360 / nPunti;
         float rad = alpha * Mathf.Deg2Rad;
@@ -281,6 +362,8 @@ public class ClassManager : MonoBehaviour
                 }
             break;
         }
+
+        MoveSelected(JoystickNum, right);
     }
 
     public void ClassSelected(PlayerData player, int JoystickNum, int rotation){
