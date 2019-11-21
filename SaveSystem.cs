@@ -27,13 +27,13 @@ public static class SaveSystem
         pg.mana = player.mana;
         pg.armor = player.armor;
         pg.lastClassUsed = player.lastClassUsed;
+        pg.lastRaceUsed = player.lastRaceUsed;
         pg.lvl = player.lvl;
         pg.classUnlocked = player.classUnlocked;
         SavePlayer(pg);
     }
 
     public static PlayerData LoadPlayer(string race, string name){
-        //Debug.Log(name);
         string path = "";
         switch(race){
             case "Human":

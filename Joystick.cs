@@ -33,6 +33,7 @@ public class Joystick : MonoBehaviour
 
 
 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -70,12 +71,11 @@ public class Joystick : MonoBehaviour
             }
 
             if(!joined && Input.GetButtonDown("AButton" + JoystickNum)){
-                Joined();
+                Joined(true);
                 downTime = startDownTime;
             }
             
             if(raceSelection){
-                Debug.Log("JOYSTICK : " + JoystickNum + " Pos : " + currentPlayerNum);
                 if(Input.GetAxis("LeftStickVertical" + JoystickNum) > 0.7f && downTime <= 0 && currentPlayerNum < 2){   // = num Max Race 
                     Down();
                     downTime = startDownTime;
@@ -125,12 +125,12 @@ public class Joystick : MonoBehaviour
             }else{
                 if(Input.GetAxis("LeftStickHorizontal" + JoystickNum) > 0.7f && downTime <= 0){
                     rotation++;
-                    ClassManager.instance.MoveClassGraphic('d', JoystickNum - 1, rotation);
+                    ClassManager.instance.MoveClassGraphic('d', JoystickNum - 1, rotation, true);
                         //Debug.Log("RightMove");
                     downTime = startDownTime;
                 }else if(Input.GetAxis("LeftStickHorizontal" + JoystickNum) < -0.7f && downTime <= 0){
                     rotation--;
-                    ClassManager.instance.MoveClassGraphic('s', JoystickNum - 1, rotation);
+                    ClassManager.instance.MoveClassGraphic('s', JoystickNum - 1, rotation, false);
                     // Debug.Log("LeftMove");
                     downTime = startDownTime;
 
@@ -142,7 +142,6 @@ public class Joystick : MonoBehaviour
                     downTime = startDownTime;
                     ready = true;
                     ClassManager.instance.SetReady(player, JoystickNum - 1, raceChosen);
-            
                 }else{
                     downTime -= Time.deltaTime/5;
                     
@@ -153,9 +152,16 @@ public class Joystick : MonoBehaviour
 
     }
 
-    private void ClassSelectionFunction(string race){
+    private void ClassSelectionFunction(string race){   //All Begin From Here
         classSelection = true;
         raceChosen = race;
+        player = new PlayerData(LoadPlayer(race));
+        if(race == "Human"){
+           player.SetRace("Humanoid"); 
+        }else{
+             player.SetRace(race); 
+        }
+        SaveSystem.SavePlayer(player);
         player = new PlayerData(LoadPlayer(race));
         HideEveryPanel();
         play = false;
@@ -212,9 +218,9 @@ public class Joystick : MonoBehaviour
         PressAToPlayImage.SetActive(!PressAToPlayImage.activeSelf);
     }
 
-    private void Joined(){
+    private void Joined(bool newjoystick){
         joined = true;
-        ClassManager.instance.JoystickLoaded();
+        if(newjoystick)ClassManager.instance.JoystickLoaded();
         for(int i = 0; i < slot.Length; i++){
             slot[i].SetActive(true);
         }
@@ -272,7 +278,6 @@ public class Joystick : MonoBehaviour
 
     private void Up(){
         if(currentSlot > 1){
-            Debug.Log("ENTRATO");
             selector.transform.position = new Vector2(selector.transform.position.x, selector.transform.position.y + 124.4f);
             currentSlot--;
             currentPlayerNum--;
@@ -303,7 +308,7 @@ public class Joystick : MonoBehaviour
                 //Create new Monster Data
 
 
-                Joined();
+                Joined(false);
                 break;
             }
         }
