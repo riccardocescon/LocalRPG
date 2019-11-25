@@ -30,6 +30,7 @@ public class Joystick : MonoBehaviour
     private string playerRace;
 
     public bool ready = false;
+    private string newPlayerName = null;
 
 
 
@@ -137,7 +138,10 @@ public class Joystick : MonoBehaviour
                 }else if(Input.GetButtonDown("AButton" + JoystickNum) && downTime <= 0){
                     player = new PlayerData(LoadPlayer(playerRace));
                     ClassManager.instance.ClassSelected(player, JoystickNum, rotation);
+
+                    //if(newPlayerName != null)  SetNewPlayerData(player);
                     SaveSystem.SavePlayer(player);
+                    
                         //Debug.Log("Pick");
                     downTime = startDownTime;
                     ready = true;
@@ -154,12 +158,14 @@ public class Joystick : MonoBehaviour
 
     private void ClassSelectionFunction(string race){   //All Begin From Here
         classSelection = true;
-        raceChosen = race;
+        raceChosen = race;                    
         player = new PlayerData(LoadPlayer(race));
+        //string tempXP = player.xp;
+        //Debug.Log("STRINGA : " + tempXP);
         if(race == "Human"){
            player.SetRace("Humanoid"); 
         }else{
-             player.SetRace(race); 
+            player.SetRace(race); 
         }
         SaveSystem.SavePlayer(player);
         player = new PlayerData(LoadPlayer(race));
@@ -303,6 +309,8 @@ public class Joystick : MonoBehaviour
                 AddPlayer.SetActive(false);
 
                 //Create new Player Data
+
+                newPlayerName = inp.text;
                 CreatePlayer(inp.text);
 
                 //Create new Monster Data
@@ -314,9 +322,14 @@ public class Joystick : MonoBehaviour
         }
     }
 
+    /*private void SetNewPlayerData(PlayerData player){
+        player.SetNewPlayerData(player, player.lastClassUsed);
+    }*/
+
     private void CreatePlayer(string playerName){
         PlayerData pg = new PlayerData(playerName);
         SaveSystem.SavePlayer(pg);
+        player = pg;
     }
 
     private PlayerData LoadPlayer(string race){

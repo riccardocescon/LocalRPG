@@ -17,6 +17,8 @@ public class RangerAnimation : MonoBehaviour
 
     private float secondAttackDelay;
     private float secondTime = 5;
+    private float secondAttackDuration;
+    private float secondDurationTime = 0;
     private bool canMove = true;
     private bool powerCheck = false;
 
@@ -31,8 +33,9 @@ public class RangerAnimation : MonoBehaviour
     private void Start() {
         classParent = this.transform.parent.gameObject;
         attackDelay = classParent.GetComponent<Player>().speedAttack;   //Non assegna il valore alla variabile, quindi uso direttamente classParent.GetComponent<Player>().speedAttack
-        secondAttackDelay = 10;
         anim = classParent.gameObject.GetComponent<Animator>();
+        secondAttackDelay = 10;//GetSecondAttackDuration(classParent.gameObject.GetComponent<Player>().secondAttackPower);
+        secondAttackDuration = GetSecondAttackDuration(classParent.gameObject.GetComponent<Player>().secondAttackPower);
     }
 
     private void Update() {
@@ -44,10 +47,17 @@ public class RangerAnimation : MonoBehaviour
         } 
         currentTime -= Time.deltaTime;
         secondTime -= Time.deltaTime;
-        if(currentTime <= -0.5f && secondTime <= secondAttackDelay - 1) canMove = true;                     //SOSTITUISCI IL COMMENTO CON .....power -= 10 DOPO AVER FATTO I LIVELLI
-        if(powerCheck && secondTime <= 0){  classParent.gameObject.GetComponent<Player>().power -=  10;powerCheck = false;}//classParent.gameObject.GetComponent<Player>().secondAttackPower;
+        secondDurationTime -= Time.deltaTime;
+        if(currentTime <= -0.5f && secondTime <= secondAttackDelay - 1) canMove = true;
+        if(powerCheck && secondDurationTime < 0){  
+            classParent.gameObject.GetComponent<Player>().power -= GetSecondPowerAttack(classParent.gameObject.GetComponent<Player>().secondAttackPower);
+            powerCheck = false;
+        }
         if(classParent.GetComponent<Player>().mana < classParent.GetComponent<Player>().startMana){
           classParent.GetComponent<Player>().ManaAttack(-1f/60f);//Recupera 1 al secondo  
+        }
+        if(secondTime <= 0){
+            classParent.GetComponent<Player>().SetSecondAttackState(true);
         }
         
     }
@@ -113,9 +123,92 @@ public class RangerAnimation : MonoBehaviour
         else if(num == 2 && secondTime <= 0){
             anim.Play(classParent.gameObject.GetComponent<Player>().lastClassUsed + "Attack2"); //SOSTITUISCI IL COMMENTO CON .....power += 10 DOPO AVER FATTO I LIVELLI
             classParent.GetComponent<Player>().ManaAttack(25);//classParent.GetComponent<Player>().secondAttackPower   DA SOSTITUIRE QUANDO HAI FATTO I LIVELLI
-            classParent.gameObject.GetComponent<Player>().power +=  10;//classParent.gameObject.GetComponent<Player>().secondAttackPower;
+            if( GetSecondPowerAttack(classParent.gameObject.GetComponent<Player>().secondAttackPower) == -100) Debug.Log("ERROR ON GetSecondPowerAttack ON RangerAnimation.cs");
+            classParent.gameObject.GetComponent<Player>().power +=  GetSecondPowerAttack(classParent.gameObject.GetComponent<Player>().secondAttackPower);
             powerCheck = true;
             secondTime = secondAttackDelay;
+            secondDurationTime = secondAttackDuration;
+            classParent.GetComponent<Player>().SetSecondAttackState(false);
+        }
+    }
+
+    private float GetSecondPowerAttack(float amount){
+        switch(amount){
+            case 0:
+            return 0;
+
+            case 1:
+            return 6;
+
+            case 2:
+            return 8;
+
+            case 3:
+            return 9.5f;
+
+            case 4:
+            return 11;
+
+            case 5:
+            return 12.3f;
+
+            case 6:
+            return 13.7f;
+
+            case 7:
+            return 15;
+
+            case 8:
+            return 17;
+
+            case 9:
+            return 18.5f;
+
+            case 10:
+            return 20;
+
+            default:
+            return -100;
+        }
+    }
+
+    private float GetSecondAttackDuration(float amount){
+        switch(amount){
+            case 0:
+            return 0;
+
+            case 1:
+            return 2.5f;
+
+            case 2:
+            return 3.5f;
+
+            case 3:
+            return 4f;
+
+            case 4:
+            return 5.5f;
+
+            case 5:
+            return 7f;
+
+            case 6:
+            return 8f;
+
+            case 7:
+            return 9;
+
+            case 8:
+            return 10.5f;
+
+            case 9:
+            return 11f;
+
+            case 10:
+            return 12;
+
+            default:
+            return -100;
         }
     }
 
