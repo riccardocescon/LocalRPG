@@ -25,7 +25,6 @@ public class EndAnimation : MonoBehaviour
 
 
     public void Animate(string playerClass, int num, bool win){
-        Debug.Log(playerClass + num);
         if(win){
             animator.Play(playerClass + "Win" + num);
         }else{

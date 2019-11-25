@@ -9,9 +9,30 @@ public class PlayerDataGraphicManager : MonoBehaviour
 
     public GameObject[] playerPanel = new GameObject[4];
     public GameObject[] playerContainer = new GameObject[4];
-    public GameObject[] endPanel = new GameObject[4];
+    public GameObject[] useSecondAttack = new GameObject[4];
+    private int[] playerDefeated = new int[4];
+
+    #region EndPanel
+        public GameObject[] endPanel = new GameObject[4];
+        public Text[] nameText = new Text[4];
+        public Text[] levelText = new Text[4];
+        public Text[] expText = new Text[4];
+        public Text[] healthText = new Text[4];
+        public Text[] powerText = new Text[4];
+        public Text[] manaText = new Text[4];
+        public Text[] armorText = new Text[4];
+        public Text[] speedText = new Text[4];
+        public Text[] levelUpText = new Text[4];
+        public Text[] victoryText = new Text[4];
+
+        [Header("Unity Stuff")]
+        public Image[] expBar = new Image[4];
+
+    #endregion
 
     private Vector2 startPosition = new Vector2(72, -456);
+
+        
 
     private bool first = false;
     public int numPlayer = -1;
@@ -37,12 +58,19 @@ public class PlayerDataGraphicManager : MonoBehaviour
         for(int i = 0; i < 4; i++){
              animator[i] = this.gameObject.transform.GetChild(0).GetChild(4).GetChild(i).GetComponent<Animator>();
         }
+        for(int i = 0; i < playerContainer.Length; i++){
+            levelUpText[i].gameObject.SetActive(false);
+        }
     }
 
     public void AddPlayer(GameObject pg, PlayerData player){
         playerContainer[playerCont] = pg;
         SetData(player, playerCont);
         playerCont++;
+    }
+
+    public void ShowHideSecondAttack(bool show, int num){
+        useSecondAttack[num].SetActive(show);
     }
 
     public void SetDataGraphic(PlayerData player){
@@ -107,9 +135,10 @@ public class PlayerDataGraphicManager : MonoBehaviour
         }
     }
 
-    public void Die(){
+    public void Die(int num){
+        playerDefeated[dead] = num;
         dead++;
-        if(dead == (numPlayer + 1)){
+        if(dead == (numPlayer)){
             EndLevelScreen();
         }else{
             
@@ -123,6 +152,8 @@ public class PlayerDataGraphicManager : MonoBehaviour
             playerContainer[i].GetComponent<Movement>().pause = true;
             animator[i].Play("EndPanel" + (i + 1));
         }
+        UpdateExp();
+        SetEndLevelData();
         EndLevelAnimate();
 
         switch(numPlayer){
@@ -157,4 +188,52 @@ public class PlayerDataGraphicManager : MonoBehaviour
             }
         }
     }
+
+    private void UpdateExp(){
+        for(int i = 0; i < playerContainer.Length; i++){
+            if(playerContainer[i] == null) return;
+
+            if(playerContainer[i].GetComponent<Player>().win){
+                playerContainer[i].GetComponent<Player>().UpdateXP(20);
+            }else{
+                playerContainer[i].GetComponent<Player>().UpdateXP(10);
+            }
+
+            if(playerContainer[i].GetComponent<Player>().xp >= 100){    //SOSTITUISCI 100 CON IL VALORE DELL'ESPERIENZA PER SALIRE DI LIVELLO
+                playerContainer[i].GetComponent<Player>().lvl++;        //CREA UN DATABASE PER TUTTI I LIVELLI DI ESPERIENZA E SOSTITUISCILI QUI, POI AGIGUNGILI NELLA UI A FINE LIVELLO
+                playerContainer[i].GetComponent<Player>().xp = playerContainer[i].GetComponent<Player>().xp % 100;  //STESSA COSA QUI
+                playerContainer[i].GetComponent<Player>().leveled = true;
+            }
+        }
+    }
+
+    private void SetEndLevelData(){
+        for(int i = 0; i < playerContainer.Length; i++){
+            if(playerContainer[i] == null) return;
+            nameText[i].text = playerContainer[i].GetComponent<Player>().name;
+            levelText[i].text = "Level : " + playerContainer[i].GetComponent<Player>().lvl;
+            levelText[i].gameObject.SetActive(true);
+            expText[i].text = playerContainer[i].GetComponent<Player>().xp + "/" + "100";   //SOSTITUISCI 100 CON IL  VALORE DELL'ESPERIEZA PER SALIRE DI LIVELLO
+            expBar[i].fillAmount = (playerContainer[i].GetComponent<Player>().xp / 100f);      //anche qui
+            healthText[i].text = "Health :  " + playerContainer[i].GetComponent<Player>().startHealth;       //aggiungi da qui (+value) sui parametri che aumentano livellando
+            powerText[i].text = "Power :  " + playerContainer[i].GetComponent<Player>().power;
+            manaText[i].text = "Mana :  " + playerContainer[i].GetComponent<Player>().startMana;
+            armorText[i].text = "Armor :  " + playerContainer[i].GetComponent<Player>().armor;
+            speedText[i].text = "Speed :  " + playerContainer[i].GetComponent<Player>().speed;
+
+            if(playerContainer[i].GetComponent<Player>().win){
+                victoryText[i].text = "VICTORY";
+            }else{
+                victoryText[i].text = "DEFEAT";
+            }
+
+            if(playerContainer[i].GetComponent<Player>().leveled){
+                levelUpText[i].gameObject.SetActive(true);
+            }
+
+            playerContainer[i].GetComponent<Player>().SaveResetedPlayer();
+
+        }
+    }
+
 }

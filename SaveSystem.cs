@@ -23,7 +23,8 @@ public static class SaveSystem
         pg.power = player.power;
         pg.speed = player.speed;
         pg.speedAttack = player.speedAttack;
-        pg.xp = player.xp;
+        pg.secondAttackPower = player.secondAttackPower;
+        pg.allXP = player.xp;
         pg.mana = player.mana;
         pg.armor = player.armor;
         pg.lastClassUsed = player.lastClassUsed;
