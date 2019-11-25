@@ -11,6 +11,17 @@ public class AnimationHandler : MonoBehaviour
     private bool facingRight = true;
     private GameObject classParent;
     public Animator anim;
+    public bool attacking = false;
+
+    private float attackDelay;
+    private float currentTime = 1;
+
+    private float secondAttackDelay;
+    private float secondTime = 1;
+    private bool canMove = true;
+
+    public bool inflict = false;    //Viene usato per evitare che togla vita ad ogni collider dei  nemici, usato su SwordScript
+
 
 
 
@@ -22,6 +33,7 @@ public class AnimationHandler : MonoBehaviour
     private void Start() {
         classParent = this.transform.parent.gameObject;
         anim = classParent.gameObject.GetComponent<Animator>();
+        secondAttackDelay = 1;
     }
 
     private void Update() {
@@ -31,6 +43,24 @@ public class AnimationHandler : MonoBehaviour
         }else{
             anim.SetBool("Move", false);
         } 
+        currentTime -= Time.deltaTime;
+        secondTime -= Time.deltaTime;
+        if(currentTime <= 0f && secondTime <= secondAttackDelay - 1){
+           canMove = true;
+           attacking = false;
+           inflict = false;
+        } 
+        if(classParent.gameObject.GetComponent<Player>().currentAction == "Defending" && classParent.gameObject.GetComponent<Player>().mana > 0){
+            classParent.GetComponent<Player>().ManaAttack(8f/60f);//8 al secondo
+        }else if(classParent.GetComponent<Player>().mana < classParent.GetComponent<Player>().startMana){
+            classParent.GetComponent<Player>().ManaAttack(-2f/60f);//Recupera 2 al secondo
+        }
+        if(classParent.gameObject.GetComponent<Player>().currentAction == "Defending" && classParent.gameObject.GetComponent<Player>().mana < 0){
+            ReleaseAttack();
+        }
+        if(secondTime <= 0){
+            classParent.GetComponent<Player>().SetSecondAttackState(true);
+        }
     }
 
     private void FixedUpdate() {
@@ -51,6 +81,7 @@ public class AnimationHandler : MonoBehaviour
 
 
     public void MoveHorizontal(string button){
+        if(!canMove) return;
         moveInput = Input.GetAxis(button);
         if(moveInput < -0.5f && facingRight) Flip();
         if(moveInput > 0.5f && !facingRight) Flip();
@@ -78,21 +109,28 @@ public class AnimationHandler : MonoBehaviour
     public void Attack(int num){
         
         //Attack Animation
-        if(num == 1){
+        canMove = false;
+        if(num == 1 && currentTime <= 0){
+            attacking = true;
             anim.Play(classParent.gameObject.GetComponent<Player>().lastClassUsed + "Attack1");
+            //currentTime = attackDelay;
+            currentTime = classParent.GetComponent<Player>().speedAttack;
         } 
-        else{
+        else if(num == 2 && secondTime <= 0 && classParent.gameObject.GetComponent<Player>().mana > 0){
            anim.Play(classParent.gameObject.GetComponent<Player>().lastClassUsed + "Attack2");
            if(classParent.gameObject.GetComponent<Player>().lastClassUsed == "Warrior"){      //Aggiungi con un or tutte le classi che possono rilasciare un attacco qui e su ReleaseAttack
                 anim.SetBool("Released", false);
                 classParent.gameObject.GetComponent<Player>().currentAction = "Defending";
+                secondTime = secondAttackDelay;
+                classParent.GetComponent<Player>().SetSecondAttackState(false);
            } 
 
-        } 
+        }
     }
 
     public void ReleaseAttack(){
         if(classParent.gameObject.GetComponent<Player>().lastClassUsed == "Warrior" ) anim.SetBool("Released", true);
+         classParent.gameObject.GetComponent<Player>().currentAction = "None";
     }
 
 }
