@@ -18,7 +18,7 @@ public class EndAnimation : MonoBehaviour
     private void Update() {
         if(catchButton){
             if(Input.GetButtonDown("AButton" + JoystickNum)){
-                GameObject.Find("/MatchManager").GetComponent<MatchManager>().Ready(JoystickNum - 1);
+                GameObject.Find("/MatchManager").GetComponent<MatchManager>().Ready(JoystickNum - 1, JoystickNum);
             }
         }
     }

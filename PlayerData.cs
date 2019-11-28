@@ -8,6 +8,7 @@ public class PlayerData
     public string name;
     public float health;
     public float power;
+    public float critic;
     public float secondAttackPower;
     public float speed;
     public float speedAttack;
@@ -23,6 +24,7 @@ public class PlayerData
         name = player.name;
         health = player.health;
         power = player.power;
+        critic = player.critic;
         secondAttackPower = player.secondAttackPower;
         speed = player.speed;
         speedAttack = player.speedAttack;
@@ -40,6 +42,7 @@ public class PlayerData
         name = player.name;
         health = player.health;
         power = player.power;
+        critic = player.critic;
         secondAttackPower = player.secondAttackPower;
         speed = player.speed;
         speedAttack = player.speedAttack;
@@ -58,6 +61,7 @@ public class PlayerData
         name = playerName;
         health = 70;
         power = 16;
+        critic = 10f;
         secondAttackPower = 1;
         mana = 70f;
         armor = 9;
@@ -130,59 +134,6 @@ public class PlayerData
             temp += xp[i];
         }
         return int.Parse(temp);
-    }
-
-    private void SaveExp(int exp, string race, string classChosen){
-        switch(race){
-            case "Humanoid":
-                switch(classChosen){
-                    case "Warrior":
-                    Overwrite(0, exp);
-                    break;
-
-                    case "Ranger":
-                    Overwrite(1, exp);
-                    break;
-
-                    case "Mage":
-                    Overwrite(2, exp);
-                    break;
-                    
-                    case "Tank":
-                    Overwrite(3, exp);
-                    break;
-
-                    case "Sniper":
-                    Overwrite(4, exp);
-                    break;
-                    
-                    case "Necromancer":
-                    Overwrite(5, exp);
-                    break;
-                    
-                    case "Hunter":
-                    Overwrite(6, exp);
-                    break;
-
-                    case "EnchanterRanger":
-                    Overwrite(7, exp);
-                    break;
-
-                    case "EnchanterWarrior":
-                    Overwrite(8, exp);
-                    break;
-
-                    default:
-                        Debug.Log("ERROR : " + race + " ; " + classChosen);
-                    break;
-                }
-                break;
-
-
-            default:    //case player has just been created
-                xp = "0;0;0;0;0;0;0;0;0;";  //add when uploading new races
-            break;
-        }
     }
 
     private void Overwrite(int pos, int amount){

@@ -21,6 +21,8 @@ public class RangerAnimation : MonoBehaviour
     private float secondDurationTime = 0;
     private bool canMove = true;
     private bool powerCheck = false;
+    private float currentMoveTime = 0;
+    private float moveTime = 0.5f;
 
 
 
@@ -48,11 +50,16 @@ public class RangerAnimation : MonoBehaviour
         currentTime -= Time.deltaTime;
         secondTime -= Time.deltaTime;
         secondDurationTime -= Time.deltaTime;
+        currentMoveTime -= Time.deltaTime;
         if(currentTime <= -0.5f && secondTime <= secondAttackDelay - 1) canMove = true;
         if(powerCheck && secondDurationTime < 0){  
             classParent.gameObject.GetComponent<Player>().power -= GetSecondPowerAttack(classParent.gameObject.GetComponent<Player>().secondAttackPower);
             powerCheck = false;
         }
+        if(currentMoveTime <= 0){
+            canMove = true;
+        }
+
         if(classParent.GetComponent<Player>().mana < classParent.GetComponent<Player>().startMana){
           classParent.GetComponent<Player>().ManaAttack(-1f/60f);//Recupera 1 al secondo  
         }
@@ -77,6 +84,9 @@ public class RangerAnimation : MonoBehaviour
 
         }
     }
+
+
+    
 
 
     public void MoveHorizontal(string button){
@@ -109,6 +119,7 @@ public class RangerAnimation : MonoBehaviour
         
         //Attack Animation
         canMove = false;
+        currentMoveTime = moveTime;
         if(num == 1 && currentTime <= 0){
             anim.Play(classParent.gameObject.GetComponent<Player>().lastClassUsed + "Attack1");
             GameObject arrow;
@@ -117,7 +128,7 @@ public class RangerAnimation : MonoBehaviour
             }else{
                 arrow = Instantiate(Resources.Load<GameObject>("Prefabs/Arrow"), new Vector2(transform.position.x + 0.5f +  classParent.GetComponent<SpriteRenderer>().sprite.bounds.max.x, transform.position.y), Quaternion.identity);
             }
-            arrow.GetComponent<ArrowScript>().arrowScript(facingRight, classParent.GetComponent<Player>().power);
+            arrow.GetComponent<ArrowScript>().arrowScript(facingRight, classParent.GetComponent<Player>().power, classParent.gameObject.GetComponent<Player>());
             currentTime = classParent.GetComponent<Player>().speedAttack;
         } 
         else if(num == 2 && secondTime <= 0){

@@ -22,6 +22,9 @@ public class AnimationHandler : MonoBehaviour
 
     public bool inflict = false;    //Viene usato per evitare che togla vita ad ogni collider dei  nemici, usato su SwordScript
 
+    private float moveTime = 0.5f;
+    private float currentMoveTime = 0;
+
 
 
 
@@ -45,11 +48,15 @@ public class AnimationHandler : MonoBehaviour
         } 
         currentTime -= Time.deltaTime;
         secondTime -= Time.deltaTime;
-        if(currentTime <= 0f && secondTime <= secondAttackDelay - 1){
-           canMove = true;
+        currentMoveTime -= Time.deltaTime;
+        if(currentTime <= 0f && secondTime <= secondAttackDelay - 1f){
            attacking = false;
            inflict = false;
         } 
+        if(currentMoveTime <= 0){
+            canMove = true;
+        }
+
         if(classParent.gameObject.GetComponent<Player>().currentAction == "Defending" && classParent.gameObject.GetComponent<Player>().mana > 0){
             classParent.GetComponent<Player>().ManaAttack(8f/60f);//8 al secondo
         }else if(classParent.GetComponent<Player>().mana < classParent.GetComponent<Player>().startMana){
@@ -110,11 +117,13 @@ public class AnimationHandler : MonoBehaviour
         
         //Attack Animation
         canMove = false;
+        currentMoveTime = moveTime;
         if(num == 1 && currentTime <= 0){
             attacking = true;
             anim.Play(classParent.gameObject.GetComponent<Player>().lastClassUsed + "Attack1");
             //currentTime = attackDelay;
             currentTime = classParent.GetComponent<Player>().speedAttack;
+            
         } 
         else if(num == 2 && secondTime <= 0 && classParent.gameObject.GetComponent<Player>().mana > 0){
            anim.Play(classParent.gameObject.GetComponent<Player>().lastClassUsed + "Attack2");

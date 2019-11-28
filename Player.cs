@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
         public float health;
         public float startHealth;
         public float power;
+        public float critic;
         public float secondAttackPower;
         public float speed;
         public float speedAttack;
@@ -44,10 +45,18 @@ public class Player : MonoBehaviour
         private float timeBtwAttacks;
     #endregion
 
+    #region Particles
+        public Transform blood;
+        private ParticleSystem.EmissionModule emission;
+    #endregion
+
 
 
     private void Awake() {
         if(instance == null)instance = this;
+        blood.GetComponent<ParticleSystem>().Play();
+        emission  = blood.GetComponent<ParticleSystem>().emission;
+        emission.enabled = false;
     }
 
 
@@ -61,6 +70,7 @@ public class Player : MonoBehaviour
             name = pg.name;
             health = pg.health;
             power = pg.power;
+            critic = pg.critic;
             secondAttackPower = pg.secondAttackPower;
             speed = pg.speed;
             speedAttack = pg.speedAttack;
@@ -103,12 +113,50 @@ public class Player : MonoBehaviour
         LoadXP();
     }
 
-    public void TakeDamage(float amount){
+    private IEnumerator Particle(){
+        emission.enabled = true;
+        yield return new WaitForSeconds(0.3f);
+        emission.enabled = false;
+    }
+
+    public void TakeDamage(Player enemy){
         //SE E' UN COLPO CRITICO USA QUESTO : GameObject.Find("Main Camera").GetComponent<CameraManager>().HitZoom();
-        GameObject.Find("Main Camera").GetComponent<CameraManager>().HitZoom();
+        //GameObject.Find("Main Camera").GetComponent<CameraManager>().HitZoom();
         //PlayerDataGraphicManager.instance.PlayerShake(this.gameObject.GetComponent<Movement>().JoystickNum - 1);
+        StartCoroutine(Particle());
+        float amount = enemy.power;
+        if(IsCritic(enemy.critic)){
+            float crt = GetCritic(enemy.power);
+            amount += crt;
+            switch(GetCriticLevel(crt)){
+                case 1:
+                    //Piccolo movimento dello scermo
+                    GameObject.Find("Main Camera").GetComponent<CameraManager>().HitZoom();
+                break;
+
+                case 2:
+                    //medio movimento dello schermo
+                    GameObject.Find("Main Camera").GetComponent<CameraManager>().MediumShake();
+                break;
+
+                case 3:
+                    //Forte movmento dello schermo
+                    GameObject.Find("Main Camera").GetComponent<CameraManager>().CrazyShake();
+                break;
+            }
+        }
         if(currentAction == "Defending"){
-            health = health -  ((amount/10) - armor);
+            if(amount < armor){
+                health--;
+            }else{
+                if(amount > 2 * armor){
+                    Debug.Log(amount - (amount/3) - armor);
+                    health = health -  (amount - (amount/3) - armor);
+                }else{
+                    Debug.Log(amount - (amount/5) - armor);
+                    health = health - (amount - (amount/5) - armor);
+                }
+            }
         }else{
             health = health - (amount - armor);
         }
@@ -117,8 +165,11 @@ public class Player : MonoBehaviour
         if(health > 0){
             
         }else if(win){
+            GameObject.Find("Main Camera").GetComponent<CameraManager>().HitZoom();
             win = false;
             PlayerDataGraphicManager.instance.Die(this.gameObject.GetComponent<Movement>().JoystickNum - 1);
+            this.gameObject.transform.GetChild(0).GetChild(0).GetComponent<ColliderController>().Die();
+            health = 0;
             //ANIMAZIONE MORTE
         }
         
@@ -130,7 +181,6 @@ public class Player : MonoBehaviour
         //if(mana >= 0){
             this.gameObject.transform.GetChild(0).gameObject.transform.GetChild(0).GetComponent<ColliderController>().UseMana(amount);
             PlayerDataGraphicManager.instance.UpdateDataGraphic(this.gameObject.GetComponent<Movement>().JoystickNum - 1, "mana");
-            this.gameObject.transform.GetChild(0).GetChild(0).GetComponent<ColliderController>().Die();
         //}
     }
 
@@ -217,7 +267,6 @@ public class Player : MonoBehaviour
     public void UpdateXP(int amount){
         xp += amount;
         UpdateStringXP(xp);
-        //aggiorna xp
         SaveSystem.SavePlayer(this);
     }
 
@@ -279,6 +328,26 @@ public class Player : MonoBehaviour
         for(int i = 0; i < splitted.Length; i++){
             if(splitted[i].Equals(';'))break;   //evita bug aggiunta ; consecutivi alla fine della stringa
             allXP += splitted[i] + ";";
+        }
+    }
+
+    public bool IsCritic(float crt){
+        int num = Random.Range(1, 101);
+        if(crt >= num) return true;
+        else return false;
+    }
+
+    public float GetCritic(float pw){
+        return Random.Range(pw/3, pw * 1.5f);
+    }
+
+    public int GetCriticLevel(float num){
+        if(num <= (11/18)*power){
+            return 1;   //Low
+        }else if(num >= (22/18)*power){
+            return 3;   //CRITIC
+        }else{
+            return 2;   //Normal
         }
     }
 }

@@ -8,6 +8,7 @@ public class MatchManager : MonoBehaviour
 
     public GameObject[] pressAnyButtonText = new GameObject[4];
     public GameObject[] readyText = new GameObject[4];
+    private List<int> joystickReady = new List<int>();
 
     private int ready = 0;
 
@@ -19,7 +20,11 @@ public class MatchManager : MonoBehaviour
         }
     }
 
-    public void Ready(int num){
+    public void Ready(int num, int joystickNum){
+        for(int i = 0; i < joystickReady.Count; i++){
+            if(joystickNum == joystickReady[i])return;
+        }
+        joystickReady.Add(joystickNum);
         pressAnyButtonText[num].SetActive(false);
         readyText[num].SetActive(true);
         ready++;

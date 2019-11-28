@@ -50,6 +50,7 @@ public class ColliderController : MonoBehaviour
         if(player != null && JoystickNum != -1){
             if(other.gameObject.tag == "Ground"){
                  this.transform.parent.gameObject.transform.parent.gameObject.GetComponent<Movement>().MoveManager("OnGround");
+                 Instantiate(Resources.Load("Prefabs/Earthquake"), new Vector2(transform.position.x, transform.position.y - 1), Quaternion.identity);
             }
         }
     }
@@ -57,8 +58,5 @@ public class ColliderController : MonoBehaviour
     public void Die(){
         alive = false;
     }
-
-    
-    
 
 }

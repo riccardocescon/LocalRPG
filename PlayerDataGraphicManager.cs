@@ -11,6 +11,7 @@ public class PlayerDataGraphicManager : MonoBehaviour
     public GameObject[] playerContainer = new GameObject[4];
     public GameObject[] useSecondAttack = new GameObject[4];
     private int[] playerDefeated = new int[4];
+    public GameObject xpDB;
 
     #region EndPanel
         public GameObject[] endPanel = new GameObject[4];
@@ -22,8 +23,11 @@ public class PlayerDataGraphicManager : MonoBehaviour
         public Text[] manaText = new Text[4];
         public Text[] armorText = new Text[4];
         public Text[] speedText = new Text[4];
+        public Text[] attackSpeedText = new Text[4];
+        public Text[] criticText = new Text[4];
         public Text[] levelUpText = new Text[4];
         public Text[] victoryText = new Text[4];
+        public GameObject timer;
 
         [Header("Unity Stuff")]
         public Image[] expBar = new Image[4];
@@ -56,11 +60,12 @@ public class PlayerDataGraphicManager : MonoBehaviour
             endPanel[i].SetActive(false);
         }
         for(int i = 0; i < 4; i++){
-             animator[i] = this.gameObject.transform.GetChild(0).GetChild(4).GetChild(i).GetComponent<Animator>();
+             animator[i] = this.gameObject.transform.GetChild(0).GetChild(5).GetChild(i).GetComponent<Animator>();
         }
         for(int i = 0; i < playerContainer.Length; i++){
             levelUpText[i].gameObject.SetActive(false);
         }
+
     }
 
     public void AddPlayer(GameObject pg, PlayerData player){
@@ -147,6 +152,7 @@ public class PlayerDataGraphicManager : MonoBehaviour
 
     private void EndLevelScreen(){
         catchButton = true;
+        timer.GetComponent<Timer>().Pause();
         for(int i = 0; i < numPlayer + 1; i++){
             endPanel[i].SetActive(true);
             playerContainer[i].GetComponent<Movement>().pause = true;
@@ -177,11 +183,15 @@ public class PlayerDataGraphicManager : MonoBehaviour
                 endPanel[3].transform.position = new Vector2(endPanel[3].transform.position.x + 600, endPanel[3].transform.position.y);
             break;
         }
+
+        for(int i = 0; i < playerCont; i++){
+            SaveSystem.SavePlayer(playerContainer[i].GetComponent<Player>());
+        }
     }
 
     private void EndLevelAnimate(){ //IMPOSTA TUTTE LE COSE SUGLI END PANEL
         for(int i = 0; i < numPlayer + 1; i++){
-            if(playerContainer[i].GetComponent<Player>().health > 0){
+            if(playerContainer[i].GetComponent<Player>().win){
                 endPanel[i].transform.GetChild(2).GetComponent<EndAnimation>().Animate(playerContainer[i].GetComponent<Player>().lastClassUsed, i + 1, true);
             }else{
                 endPanel[i].transform.GetChild(2).GetComponent<EndAnimation>().Animate(playerContainer[i].GetComponent<Player>().lastClassUsed, i + 1, false);
@@ -199,27 +209,34 @@ public class PlayerDataGraphicManager : MonoBehaviour
                 playerContainer[i].GetComponent<Player>().UpdateXP(10);
             }
 
-            if(playerContainer[i].GetComponent<Player>().xp >= 100){    //SOSTITUISCI 100 CON IL VALORE DELL'ESPERIENZA PER SALIRE DI LIVELLO
-                playerContainer[i].GetComponent<Player>().lvl++;        //CREA UN DATABASE PER TUTTI I LIVELLI DI ESPERIENZA E SOSTITUISCILI QUI, POI AGIGUNGILI NELLA UI A FINE LIVELLO
-                playerContainer[i].GetComponent<Player>().xp = playerContainer[i].GetComponent<Player>().xp % 100;  //STESSA COSA QUI
+            if(playerContainer[i].GetComponent<Player>().xp >= xpDB.GetComponent<ExpDataBase>().GetMaxExp(playerContainer[i].GetComponent<Player>().lvl)){
+                playerContainer[i].GetComponent<Player>().xp = playerContainer[i].GetComponent<Player>().xp % xpDB.GetComponent<ExpDataBase>().GetMaxExp(playerContainer[i].GetComponent<Player>().lvl);
+                playerContainer[i].GetComponent<Player>().lvl++;
                 playerContainer[i].GetComponent<Player>().leveled = true;
+                UpgradeStats(playerContainer[i].GetComponent<Player>());
             }
         }
     }
 
+    private void UpgradeStats(Player pg){
+        pg.startHealth += xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(pg, "Health");
+        pg.power += xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(pg, "Power");
+        pg.startMana += xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(pg, "Mana");
+        pg.armor += xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(pg, "Armor");
+        pg.speed += xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(pg, "Speed");
+        pg.speedAttack += xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(pg, "AttackSpeed");
+        pg.critic += xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(pg, "Critic");
+    }
+
     private void SetEndLevelData(){
-        for(int i = 0; i < playerContainer.Length; i++){
+        for(int i = 0; i < playerCont; i++){
             if(playerContainer[i] == null) return;
             nameText[i].text = playerContainer[i].GetComponent<Player>().name;
             levelText[i].text = "Level : " + playerContainer[i].GetComponent<Player>().lvl;
             levelText[i].gameObject.SetActive(true);
-            expText[i].text = playerContainer[i].GetComponent<Player>().xp + "/" + "100";   //SOSTITUISCI 100 CON IL  VALORE DELL'ESPERIEZA PER SALIRE DI LIVELLO
-            expBar[i].fillAmount = (playerContainer[i].GetComponent<Player>().xp / 100f);      //anche qui
-            healthText[i].text = "Health :  " + playerContainer[i].GetComponent<Player>().startHealth;       //aggiungi da qui (+value) sui parametri che aumentano livellando
-            powerText[i].text = "Power :  " + playerContainer[i].GetComponent<Player>().power;
-            manaText[i].text = "Mana :  " + playerContainer[i].GetComponent<Player>().startMana;
-            armorText[i].text = "Armor :  " + playerContainer[i].GetComponent<Player>().armor;
-            speedText[i].text = "Speed :  " + playerContainer[i].GetComponent<Player>().speed;
+            expText[i].text = playerContainer[i].GetComponent<Player>().xp + "/" + xpDB.GetComponent<ExpDataBase>().GetMaxExp(playerContainer[i].GetComponent<Player>().lvl);
+            expBar[i].fillAmount = (playerContainer[i].GetComponent<Player>().xp / (float)xpDB.GetComponent<ExpDataBase>().GetMaxExp(playerContainer[i].GetComponent<Player>().lvl));
+            UIChar(i);
 
             if(playerContainer[i].GetComponent<Player>().win){
                 victoryText[i].text = "VICTORY";
@@ -234,6 +251,53 @@ public class PlayerDataGraphicManager : MonoBehaviour
             playerContainer[i].GetComponent<Player>().SaveResetedPlayer();
 
         }
+    }
+
+    private void UIChar(int i){
+        playerContainer[i].GetComponent<Player>().lvl++;
+        if(xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Health") != 0){
+            healthText[i].text = "Health :  " + playerContainer[i].GetComponent<Player>().startHealth + "  (+" + xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Health") + ")";
+        }else{
+            healthText[i].text = "Health :  " + playerContainer[i].GetComponent<Player>().startHealth;
+        }
+
+        if(xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Power") != 0){
+            powerText[i].text = "Power :  " + playerContainer[i].GetComponent<Player>().power + "  (+" + xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Power") + ")";
+        }else{
+            powerText[i].text = "Power :  " + playerContainer[i].GetComponent<Player>().power;
+        }
+
+        if(xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Mana") != 0){
+            manaText[i].text = "Mana :  " + playerContainer[i].GetComponent<Player>().startMana + "  (+" + xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Mana") + ")";
+        }else{
+            manaText[i].text = "Mana :  " + playerContainer[i].GetComponent<Player>().startMana;
+        }
+
+        if(xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Armor") != 0){
+            armorText[i].text = "Armor :  " + playerContainer[i].GetComponent<Player>().armor + "  (+" + xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Armor") + ")";
+        }else{
+            armorText[i].text = "Armor :  " + playerContainer[i].GetComponent<Player>().armor;
+        }
+
+        if(xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Speed") != 0){
+            speedText[i].text = "Speed :  " + playerContainer[i].GetComponent<Player>().speed + "  (+" + xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Speed")+ ")";
+        }else{
+            speedText[i].text = "Speed :  " + playerContainer[i].GetComponent<Player>().speed;
+        }
+
+        if(xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "AttackSpeed") != 0){
+            attackSpeedText[i].text = "AtkSpeed: " + playerContainer[i].GetComponent<Player>().speedAttack + "(+" + xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "AttackSpeed")+ ")";
+        }else{
+            attackSpeedText[i].text = "AtkSpeed :  " + playerContainer[i].GetComponent<Player>().speedAttack;
+        }
+
+        if(xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Critic") != 0){
+            criticText[i].text = "Critic% : " + playerContainer[i].GetComponent<Player>().critic + "  (+" + xpDB.GetComponent<ExpDataBase>().GetAmountNextLevel(playerContainer[i].GetComponent<Player>(), "Critic")+ ")";
+        }else{
+            criticText[i].text = "Critic% :  " + playerContainer[i].GetComponent<Player>().critic;
+        }
+
+        playerContainer[i].GetComponent<Player>().lvl--;
     }
 
 }

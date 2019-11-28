@@ -10,8 +10,9 @@ public class ArrowScript : MonoBehaviour
     private float force = 850f;
     private bool facingRight;
     private float damage;
+    public bool finished = true;
     
-    
+    private Player player;
 
 
     private void Awake() {
@@ -29,9 +30,10 @@ public class ArrowScript : MonoBehaviour
         
     }
 
-    public void arrowScript(bool right, float dmg){
+    public void arrowScript(bool right, float dmg, Player pg){
         facingRight = right;
         damage = dmg;
+        player = pg;
         this.gameObject.SetActive(true);
         rb = GetComponent<Rigidbody2D>();
         if(right){
@@ -49,8 +51,8 @@ public class ArrowScript : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D other) {
         switch(other.gameObject.tag){
             case "Hero":
-                other.gameObject.GetComponent<Player>().TakeDamage(damage);
                 Destroy(this.gameObject);
+                other.gameObject.GetComponent<Player>().TakeDamage(player);
             break;
 
             case "Ground":

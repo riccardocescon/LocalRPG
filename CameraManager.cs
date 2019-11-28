@@ -16,4 +16,12 @@ public class CameraManager : MonoBehaviour
         animator.Play("CameraShake");
     }
 
+    public void MediumShake(){
+        animator.Play("MediumCameraShake");
+    }
+
+    public void CrazyShake(){
+        animator.Play("CrazyCameraShake");
+    }
+
 }

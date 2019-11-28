@@ -21,6 +21,7 @@ public static class SaveSystem
         pg.name = player.name;
         pg.health = player.health;
         pg.power = player.power;
+        pg.critic = player.critic;
         pg.speed = player.speed;
         pg.speedAttack = player.speedAttack;
         pg.secondAttackPower = player.secondAttackPower;
